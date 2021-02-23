@@ -30,11 +30,11 @@ provider:
 #  stage: dev
 
 # you can add statements to the Lambda function's IAM Role here
-#  iamRoleStatements:
-#    - Effect: "Allow"
-#      Action:
-#        - "s3:ListBucket"
-#      Resource: { "Fn::Join" : ["", ["arn:aws:s3:::", { "Ref" : "ServerlessDeploymentBucket" } ] ]  }
+  iamRoleStatements:
+    - Effect: "Allow"
+      Action:
+        - "s3:ListBucket"
+      Resource: "*"
 #    - Effect: "Allow"
 #      Action:
 #        - "s3:PutObject"
@@ -63,17 +63,11 @@ plugins:
   - serverless-express
 
 functions:
-  song:
-    handler: handler.api
-    events:
-      - httpApi:
-          path: /song
-          method: get
   listArtists:
     handler: handler.api
     events:
       - httpApi:
-          path: /listArtists
+          path: /
           method: get
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
