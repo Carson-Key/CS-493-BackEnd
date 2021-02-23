@@ -1,0 +1,18 @@
+{
+  "name": "carson-key-serverless-api",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "sls": "sls"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "aws-sdk": "^2.849.0",
+    "serverless": "^2.25.2",
+    "serverless-express": "^2.0.11",
+    "serverless-offline": "^6.8.0"
+  }
+}
