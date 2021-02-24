@@ -34,6 +34,7 @@ provider:
     - Effect: "Allow"
       Action:
         - "s3:ListBucket"
+        - "s3:GetObject"
       Resource: "*"
 #    - Effect: "Allow"
 #      Action:
@@ -66,9 +67,9 @@ functions:
   listArtists:
     handler: handler.api
     events:
-      - httpApi:
-          path: /
-          method: get
+      - http:
+          path: /{proxy+}
+          method: ANY
 #    The following are a few example events you can configure
 #    NOTE: Please make sure to change your handler code to work with those events
 #    Check the event documentation for details

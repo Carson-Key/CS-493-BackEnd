@@ -8,23 +8,23 @@ var app = express();
 const awsconfig = {region: 'us-west-2'}
 AWS.config.update(awsconfig);
 
-// app.get('/song', function (req, res) {
-//   let s3 = new AWS.S3({apiVersion: '2006-03-01'});
-//   const bucketParams = {
-//     Bucket : 'cs493-aws-cli',
-//     Key: req.query.title + ".mp3"
-//   };
+app.get('/song', function (req, res) {
+  let s3 = new AWS.S3({apiVersion: '2006-03-01'});
+  const bucketParams = {
+    Bucket : 'cs493-aws-cli',
+    Key: req.query.title + ".mp3"
+  };
 
-//   s3.getObject(bucketParams, function(err, data) {
-//     if (err) {
-//       res.send(err);
-//     } else {
-//       res.send("https://" + bucketParams.Bucket + ".s3-" + awsconfig.region + ".amazonaws.com/" + bucketParams.Key);
-//     }
-//   });
-// });
+  s3.getObject(bucketParams, function(err, data) {
+    if (err) {
+      res.send(err);
+    } else {
+      res.send("https://" + bucketParams.Bucket + ".s3-" + awsconfig.region + ".amazonaws.com/" + bucketParams.Key);
+    }
+  });
+});
 
-app.get('/', function (req, res) {
+app.get('/artistList', function (req, res) {
   let s3 = new AWS.S3({apiVersion: '2006-03-01'});
   const bucketParams = {
     Bucket : 'cs493-aws-cli'
@@ -42,10 +42,12 @@ app.get('/', function (req, res) {
         const song = pathSplit[2];
         let artistObject = {...artists[artist]};
         let songObject = {}
+        var params = {Bucket: bucketParams.Bucket, Key: artist + "/" + album + "/" + song, Expires: 900};
+        const url = s3.getSignedUrl('getObject', params);
 
         songObject["song" + (i + 1)] = {
           title: path.basename(song, ".mp3"),
-          url: "https://" + bucketParams.Bucket + ".s3-" + awsconfig.region + ".amazonaws.com/" + artist + "/" + album + "/" + song
+          url: url
         }
         artistObject[album] = {...artistObject[album], ...songObject};
 
