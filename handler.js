@@ -37,21 +37,41 @@ app.get('/artistList', function (req, res) {
     } else {
       data.Contents.forEach((item, i) => {
         const pathSplit = item.Key.split('/');
-        const artist = pathSplit[0];
-        const album = pathSplit[1];
-        const song = pathSplit[2];
-        let artistObject = {...artists[artist]};
-        let songObject = {}
-        var params = {Bucket: bucketParams.Bucket, Key: artist + "/" + album + "/" + song, Expires: 900};
-        const url = s3.getSignedUrl('getObject', params);
+        let artist;
+        let album;
+        let song;
+        let key;
 
-        songObject["song" + (i + 1)] = {
-          title: path.basename(song, ".mp3"),
-          url: url
+        if (path.extname(item.Key) === ".mp3") {
+          if (pathSplit[2]) {
+            artist = pathSplit[0];
+            album = pathSplit[1];
+            song = pathSplit[2];
+            key = artist + "/" + album + "/" + song
+          } else if (pathSplit[1]) {
+            artist = "No-Artist";
+            album = pathSplit[0];
+            song = pathSplit[1];
+            key = album + "/" + song
+          } else {
+            artist = "No-Artist";
+            album = "No-Album";
+            song = pathSplit[0];
+            key = song
+          }
+          let artistObject = {...artists[artist]};
+          let songObject = {}
+          var params = {Bucket: bucketParams.Bucket, Key: key, Expires: 900};
+          const url = s3.getSignedUrl('getObject', params);
+  
+          songObject["song" + (i + 1)] = {
+            title: path.basename(song, ".mp3"),
+            url: url
+          }
+          artistObject[album] = {...artistObject[album], ...songObject};
+  
+          artists[artist] = artistObject;
         }
-        artistObject[album] = {...artistObject[album], ...songObject};
-
-        artists[artist] = artistObject;
       })
       res.send(artists);
     }
