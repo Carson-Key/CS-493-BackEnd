@@ -106,4 +106,32 @@ app.get('/genres', function (req, res) {
   });
 });
 
+app.get('/artist/by/genre', function (req, res) {
+  var docClient = new AWS.DynamoDB.DocumentClient();
+  let s3 = new AWS.S3({apiVersion: '2006-03-01'});
+
+  var params = {
+    TableName : "music",
+    KeyConditionExpression: "#pk = :pk",
+    ExpressionAttributeNames:{
+        "#pk": "pk"
+    },
+    ExpressionAttributeValues: {
+        ":pk": "genre#" + req.query.genre
+    }
+  };
+
+  docClient.query(params, function(err, data) {
+    if (err) {
+      res.send(err);
+    } else {
+      let returnedGenres = []
+      data.Items.forEach((genre) => {
+        returnedGenres.push(genre.attributes.name)
+      })
+      res.send(returnedGenres);
+    }
+  });
+});
+
 module.exports.api = handler(app);
