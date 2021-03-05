@@ -8,22 +8,6 @@ var app = express();
 const awsconfig = {region: 'us-west-2'}
 AWS.config.update(awsconfig);
 
-app.get('/song', function (req, res) {
-  let s3 = new AWS.S3({apiVersion: '2006-03-01'});
-  const bucketParams = {
-    Bucket : 'cs493-aws-cli',
-    Key: req.query.title + ".mp3"
-  };
-
-  s3.getObject(bucketParams, function(err, data) {
-    if (err) {
-      res.send(err);
-    } else {
-      res.send("https://" + bucketParams.Bucket + ".s3-" + awsconfig.region + ".amazonaws.com/" + bucketParams.Key);
-    }
-  });
-});
-
 app.get('/artistList', function (req, res) {
   let s3 = new AWS.S3({apiVersion: '2006-03-01'});
   const bucketParams = {
@@ -186,6 +170,34 @@ app.get('/songs/for/album', function (req, res) {
         returnedGenres.push(genre.attributes.name)
       })
       res.send(returnedGenres);
+    }
+  });
+});
+
+app.get('/song', function (req, res) {
+  var docClient = new AWS.DynamoDB.DocumentClient();
+  let s3 = new AWS.S3({apiVersion: '2006-03-01'});
+
+  var params = {
+    TableName : "music",
+    KeyConditionExpression: "#pk = :pk and #sk = :sk",
+    ExpressionAttributeNames:{
+        "#pk": "pk",
+        "#sk": "sk"
+    },
+    ExpressionAttributeValues: {
+        ":pk": "song",
+        ":sk": req.query.song
+    }
+  };
+
+  docClient.query(params, function(err, data) {
+    if (err) {
+      res.send(err);
+    } else {
+      var params = {Bucket: 'cs493-aws-cli', Key: data.Items[0].attributes.s3ey, Expires: 900};
+      const url = s3.getSignedUrl('getObject', params);
+      res.send(url);
     }
   });
 });
