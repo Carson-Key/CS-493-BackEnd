@@ -35,6 +35,7 @@ provider:
       Action:
         - "s3:ListBucket"
         - "s3:GetObject"
+        - "dynamodb:Query"
       Resource: "*"
 #    - Effect: "Allow"
 #      Action:
