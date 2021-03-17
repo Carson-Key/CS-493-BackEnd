@@ -36,6 +36,7 @@ provider:
         - "s3:ListBucket"
         - "s3:GetObject"
         - "dynamodb:Query"
+        - "sqs:SendMessage"
       Resource: "*"
 #    - Effect: "Allow"
 #      Action:

@@ -5,6 +5,7 @@ var AWS = require("aws-sdk");
 const path = require('path');
 
 var app = express();
+app.use(express.json());
 const awsconfig = {region: 'us-west-2'}
 AWS.config.update(awsconfig);
 
@@ -200,6 +201,44 @@ app.get('/song', function (req, res) {
       res.send(url);
     }
   });
+});
+
+app.post('/play', function (req, res) {
+  var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+
+  if (req.body) {
+    if (!req.body.song && !req.body.album && !req.body.artist) {
+      res.send({type: "error", message: "there was no song/album/artist"})
+    } else {
+      var params = {
+       DelaySeconds: 10,
+       MessageAttributes: {
+         "song": {
+          DataType: "String",
+          StringValue: req.body.song
+         },
+         "album": {
+          DataType: "String",
+          StringValue: req.body.album
+         },
+         "artist": {
+          DataType: "String",
+          StringValue: req.body.artist
+         },
+       },
+       MessageBody: "The song: " + req.body.song + " from the album: " + req.body.album + " created by the artist: " + req.body.artist + " was played",
+       QueueUrl: "https://sqs.us-west-2.amazonaws.com/243732450758/play-music-queue"
+     };
+
+     sqs.sendMessage(params, function(err, data) {
+      if (err) {
+        res.send({type: "error", message: err});
+      } else {
+        res.send({type: "success", message: "The message with id " + data.MessageId + " was successfully published"});
+      }
+    });
+    }
+  }
 });
 
 module.exports.api = handler(app);
