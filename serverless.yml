@@ -29,10 +29,10 @@ functions:
           path: /{proxy+}
           method: ANY
 
-  # hello:
-  #   handler: handler.receivePlay
-  #   events:
-  #     - sqs: arn:aws:sqs:us-west-2:243732450758:play-music-queue
+  receivePlay:
+    handler: handler.receivePlay
+    events:
+      - sqs: arn:aws:sqs:us-west-2:243732450758:play-music-queue
 
 # resources:
 #   Resources:

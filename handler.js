@@ -271,19 +271,15 @@ app.post('/cloud', function (req, res) {
 
 module.exports.api = handler(app);
 
-// module.exports.receivePlay = async (event) => {
-//   var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
-
-//   var params = {
-//     AttributeNames: [
-//        "SentTimestamp"
-//     ],
-//     MaxNumberOfMessages: 10,
-//     MessageAttributeNames: [
-//        "All"
-//     ],
-//     QueueUrl: "https://sqs.us-west-2.amazonaws.com/243732450758/play-music-queue",
-//     VisibilityTimeout: 20,
-//     WaitTimeSeconds: 0
-//    };
-// }
+module.exports.receivePlay = async (event, context) => {
+  event.Records.forEach(record => {
+    console.log({
+      body: record.body, 
+      attributes: {
+        song: record.messageAttributes.song.stringValue,
+        album: record.messageAttributes.album.stringValue,
+        artist: record.messageAttributes.artist.stringValue
+      }
+    })
+  });
+}
