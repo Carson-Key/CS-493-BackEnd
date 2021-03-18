@@ -241,4 +241,49 @@ app.post('/play', function (req, res) {
   }
 });
 
+app.post('/cloud', function (req, res) {
+  if (req.body) {
+    if (!req.body.song && !req.body.album && !req.body.artist) {
+      res.send({type: "error", message: "there was no song/album/artist"})
+    } else {
+      var cloudwatchlogs = new AWS.CloudWatchLogs();
+
+      var params = {
+        logEvents: [
+          {
+            message: "The song: " + req.body.song + " from the album: " + req.body.album + " created by the artist: " + req.body.artist + " was played",
+            timestamp: Date.now()
+          },
+        ],
+        logGroupName: 'SongsPlayed',
+        logStreamName: 'SongsAlbumsArtists'
+      };
+      cloudwatchlogs.putLogEvents(params, function(err, data) {
+        if (err){
+          res.send({type: "error", message: err})
+        } else {
+          res.send({type: "success", message: "log was successful"}); 
+        }
+      });
+    }
+  }
+});
+
 module.exports.api = handler(app);
+
+// module.exports.receivePlay = async (event) => {
+//   var sqs = new AWS.SQS({apiVersion: '2012-11-05'});
+
+//   var params = {
+//     AttributeNames: [
+//        "SentTimestamp"
+//     ],
+//     MaxNumberOfMessages: 10,
+//     MessageAttributeNames: [
+//        "All"
+//     ],
+//     QueueUrl: "https://sqs.us-west-2.amazonaws.com/243732450758/play-music-queue",
+//     VisibilityTimeout: 20,
+//     WaitTimeSeconds: 0
+//    };
+// }
