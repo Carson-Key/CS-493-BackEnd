@@ -10,6 +10,8 @@ const awsconfig = {region: 'us-west-2'}
 AWS.config.update(awsconfig);
 
 app.get('/artistList', function (req, res) {
+  const auth = req.get("authorization")
+
   let s3 = new AWS.S3({apiVersion: '2006-03-01'});
   const bucketParams = {
     Bucket : 'cs493-aws-cli'
@@ -18,7 +20,7 @@ app.get('/artistList', function (req, res) {
 
   s3.listObjects(bucketParams, function(err, data) {
     if (err) {
-      res.send(err);
+      res.send({auth, err});
     } else {
       data.Contents.forEach((item, i) => {
         const pathSplit = item.Key.split('/');
@@ -58,7 +60,7 @@ app.get('/artistList', function (req, res) {
           artists[artist] = artistObject;
         }
       })
-      res.send(artists);
+      res.send({auth, artists});
     }
   });
 });
@@ -208,7 +210,7 @@ app.post('/play', function (req, res) {
 
   if (req.body) {
     if (!req.body.song && !req.body.album && !req.body.artist) {
-      res.send({type: "error", message: "there was no song/album/artist"})
+      res.send({type: "error", message: "there was no song/album/artist", attributes: {song: req.body.song, album: req.body.album, artist: req.body.artist}})
     } else {
       var params = {
        DelaySeconds: 10,
