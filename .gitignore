@@ -4,3 +4,6 @@ jspm_packages
 
 # Serverless directories
 .serverless
+
+# Firebase key
+cs-493-hw1-firebase-adminsdk-ofjr0-0be7a340ba.json

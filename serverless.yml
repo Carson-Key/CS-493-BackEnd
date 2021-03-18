@@ -16,6 +16,8 @@ provider:
         - "sqs:SendMessage"
         - "logs:PutLogEvents"
       Resource: "*"
+  environment:
+    GOOGLE_APPLICATION_CREDENTIALS: ./cs-493-hw1-firebase-adminsdk-ofjr0-0be7a340ba.json
 
 plugins:
   - serverless-offline
@@ -24,7 +26,7 @@ plugins:
 functions:
   auth:
     handler: auth.handler
-    
+
   listArtists:
     handler: handler.api
     events:
